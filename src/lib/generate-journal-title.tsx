@@ -200,10 +200,38 @@ export const generateSmartTitle = (content: string) => {
     "quantas",
   ]);
 
+  // Conectores importantes que devem ser mantidos
+  const keepWords = new Set(["e", "depois", "antes", "para", "com"]);
+
   // Se o texto for muito curto, retorna ele mesmo capitalizado
   if (words.length <= 5) {
     const capitalized = content.charAt(0).toUpperCase() + content.slice(1);
     return capitalized;
+  }
+
+  // --- RESUMO NATURAL ---
+  // Filtra palavras: mantém conectores e remove repetições
+  const filtered: string[] = [];
+  let lastWord = "";
+  for (const word of words) {
+    if (stopWords.has(word) && !keepWords.has(word)) continue;
+    if (word === lastWord) continue;
+    filtered.push(word);
+    lastWord = word;
+  }
+
+  // Limita o tamanho do título
+  const maxWords = 6;
+  let title = filtered.slice(0, maxWords).join(" ");
+  if (filtered.length > maxWords) {
+    title += "...";
+  }
+  // Capitaliza só a primeira letra
+  title = title.charAt(0).toUpperCase() + title.slice(1);
+
+  // Se o resultado for razoável, retorna
+  if (title.length > 0 && title.split(" ").length >= 2) {
+    return title;
   }
 
   // Categorias principais
@@ -372,12 +400,6 @@ export const generateSmartTitle = (content: string) => {
   // Se só reflexões pontuou
   if (categoryScores["reflexoes"].count > 0 && concreteSorted.length === 0) {
     return "Reflexões do dia";
-  }
-
-  // Fallback: usa as palavras mais relevantes do texto (ignorando stopwords)
-  const relevantWords = words.filter((w) => !stopWords.has(w));
-  if (relevantWords.length >= 2) {
-    return relevantWords.join(" ").replace(/^./, (c) => c.toUpperCase());
   }
 
   // Fallback: primeira frase
