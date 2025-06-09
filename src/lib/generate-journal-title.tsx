@@ -6,11 +6,91 @@ export const generateSmartTitle = (content: string) => {
   const text = content
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, ""); // Remove acentos
-  const words = text.split(/\s+/).filter((word) => word.length > 2); // Remove palavras muito pequenas
+    .replace(/[\u0300-\u036f]/g, "");
+  const words = text.split(/\s+/).filter((word) => word.length > 2);
 
-  // Palavras que devem ser ignoradas
+  // Palavras que devem ser ignoradas (stopwords ampliada)
   const stopWords = new Set([
+    // Pronomes e artigos
+    "eu",
+    "tu",
+    "ele",
+    "ela",
+    "nos",
+    "nós",
+    "vos",
+    "vós",
+    "eles",
+    "elas",
+    "me",
+    "te",
+    "se",
+    "nos",
+    "vos",
+    "lhe",
+    "lhes",
+    "o",
+    "a",
+    "os",
+    "as",
+    "um",
+    "uma",
+    "uns",
+    "umas",
+    "isso",
+    "isto",
+    "aquilo",
+    // Verbos auxiliares/comuns
+    "vou",
+    "fui",
+    "vai",
+    "vamos",
+    "iria",
+    "estou",
+    "está",
+    "estava",
+    "estive",
+    "sou",
+    "era",
+    "ser",
+    "foi",
+    "são",
+    "tem",
+    "tinha",
+    "tenho",
+    "havia",
+    "haver",
+    "pode",
+    "podia",
+    "deve",
+    "dever",
+    "quer",
+    "queria",
+    "posso",
+    "poder",
+    "faz",
+    "fazer",
+    "fez",
+    "feito",
+    "fica",
+    "ficar",
+    "ficou",
+    "fica",
+    "ficando",
+    "estavam",
+    "estaremos",
+    "seremos",
+    "seria",
+    "seriam",
+    "seremos",
+    "será",
+    "serão",
+    "seriam",
+    "seria",
+    "seremos",
+    "será",
+    "serão",
+    // Palavras já presentes
     "que",
     "de",
     "do",
@@ -51,8 +131,6 @@ export const generateSmartTitle = (content: string) => {
     "ali",
     "la",
     "ca",
-    "isso",
-    "isto",
     "esse",
     "esta",
     "aquele",
@@ -122,7 +200,13 @@ export const generateSmartTitle = (content: string) => {
     "quantas",
   ]);
 
-  // Categorias principais com suas palavras-chave
+  // Se o texto for muito curto, retorna ele mesmo capitalizado
+  if (words.length <= 5) {
+    const capitalized = content.charAt(0).toUpperCase() + content.slice(1);
+    return capitalized;
+  }
+
+  // Categorias principais
   const categories = {
     trabalho: {
       keywords: [
@@ -147,13 +231,7 @@ export const generateSmartTitle = (content: string) => {
         "promocao",
         "salario",
       ],
-      titles: [
-        "Dia de trabalho",
-        "Reflexões profissionais",
-        "No escritório",
-        "Desafios do trabalho",
-        "Vida corporativa",
-      ],
+      label: "trabalho",
     },
     estudos: {
       keywords: [
@@ -188,50 +266,7 @@ export const generateSmartTitle = (content: string) => {
         "apostila",
         "caderno",
       ],
-      titles: [
-        "Vida acadêmica",
-        "Nos estudos",
-        "Aprendizado",
-        "Desafios acadêmicos",
-        "Conhecimento",
-      ],
-    },
-    reflexoes: {
-      keywords: [
-        "pensar",
-        "pensamento",
-        "reflexao",
-        "refletir",
-        "pensando",
-        "duvida",
-        "questionamento",
-        "incerteza",
-        "certeza",
-        "conclusao",
-        "decisao",
-        "escolha",
-        "opcao",
-        "alternativa",
-        "possibilidade",
-        "futuro",
-        "passado",
-        "presente",
-        "momento",
-        "vida",
-        "existencia",
-        "sentido",
-        "proposito",
-        "valor",
-        "importancia",
-        "significado",
-      ],
-      titles: [
-        "Reflexões profundas",
-        "Pensamentos do dia",
-        "Momento de reflexão",
-        "Questões existenciais",
-        "Pensando na vida",
-      ],
+      label: "estudos",
     },
     desafios: {
       keywords: [
@@ -262,60 +297,100 @@ export const generateSmartTitle = (content: string) => {
         "sucesso",
         "conquista",
       ],
-      titles: [
-        "Desafios do dia",
-        "Superando obstáculos",
-        "Momentos difíceis",
-        "Lutas diárias",
-        "Enfrentando desafios",
+      label: "desafios",
+    },
+    reflexoes: {
+      keywords: [
+        "pensar",
+        "pensamento",
+        "reflexao",
+        "refletir",
+        "pensando",
+        "duvida",
+        "questionamento",
+        "incerteza",
+        "certeza",
+        "conclusao",
+        "decisao",
+        "escolha",
+        "opcao",
+        "alternativa",
+        "possibilidade",
+        "futuro",
+        "passado",
+        "presente",
+        "momento",
+        "vida",
+        "existencia",
+        "sentido",
+        "proposito",
+        "valor",
+        "importancia",
+        "significado",
       ],
+      label: "reflexões",
     },
   };
 
-  // Conta as ocorrências de palavras-chave para cada categoria
-  const categoryScores: { [key: string]: number } = {};
-
+  // Conta as ocorrências e armazena as palavras-chave encontradas
+  const categoryScores: { [key: string]: { count: number; words: string[] } } =
+    {};
   for (const [category, data] of Object.entries(categories)) {
-    let score = 0;
+    let count = 0;
+    const foundWords: string[] = [];
     for (const word of words) {
       if (stopWords.has(word)) continue;
       if (data.keywords.includes(word)) {
-        score += 1;
+        count++;
+        foundWords.push(word);
       }
     }
-    categoryScores[category] = score;
+    categoryScores[category] = { count, words: foundWords };
   }
 
-  // Encontra a categoria com maior pontuação
-  let bestCategory = "reflexoes"; // Categoria padrão
-  let maxScore = 0;
+  // Categorias concretas
+  const concreteCategories = ["trabalho", "estudos", "desafios"];
+  const concreteSorted = concreteCategories
+    .map((cat) => ({ cat, count: categoryScores[cat].count }))
+    .filter((obj) => obj.count > 0)
+    .sort((a, b) => b.count - a.count);
 
-  for (const [category, score] of Object.entries(categoryScores)) {
-    if (score > maxScore) {
-      maxScore = score;
-      bestCategory = category;
-    }
+  // Se houver pelo menos duas categorias concretas relevantes, monta título composto
+  if (concreteSorted.length >= 2) {
+    return `Reflexões sobre ${
+      categories[concreteSorted[0].cat as keyof typeof categories].label
+    } e ${categories[concreteSorted[1].cat as keyof typeof categories].label}`;
   }
 
-  // Se encontrou uma categoria com pontuação significativa
-  if (maxScore > 0) {
-    const titles = categories[bestCategory as keyof typeof categories].titles;
-    return titles[Math.floor(Math.random() * titles.length)];
+  // Se só uma concreta e reflexões também pontuou, monta "Reflexões sobre [concreta]"
+  if (concreteSorted.length === 1 && categoryScores["reflexoes"].count > 0) {
+    return `Reflexões sobre ${
+      categories[concreteSorted[0].cat as keyof typeof categories].label
+    }`;
   }
 
-  // Se não encontrou uma categoria específica, usa a primeira frase do texto
+  // Se só reflexões pontuou
+  if (categoryScores["reflexoes"].count > 0 && concreteSorted.length === 0) {
+    return "Reflexões do dia";
+  }
+
+  // Fallback: usa as palavras mais relevantes do texto (ignorando stopwords)
+  const relevantWords = words.filter((w) => !stopWords.has(w));
+  if (relevantWords.length >= 2) {
+    return relevantWords.join(" ").replace(/^./, (c) => c.toUpperCase());
+  }
+
+  // Fallback: primeira frase
   const sentences = content.split(/[.!?]/);
   const firstSentence = sentences[0].trim();
-
   if (firstSentence.length > 10 && firstSentence.length <= 50) {
     return firstSentence;
   }
-
   if (firstSentence.length > 50) {
     return firstSentence.substring(0, 47) + "...";
   }
 
-  // Fallback para um título genérico baseado no horário
+  // Fallback horário
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 12) {
     return "Reflexões matinais";
