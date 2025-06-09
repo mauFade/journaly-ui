@@ -13,9 +13,6 @@ import {
   Plus,
   Save,
   Search,
-  // Settings,
-  // Moon,
-  // Sun,
   FileText,
   Clock,
 } from "lucide-react";
@@ -23,10 +20,10 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/api";
+import { generateSmartTitle } from "@/lib/generate-journal-title";
 
 interface JournalEntry {
   id: string;
-  title: string;
   content: string;
   date: Date;
   wordCount: number;
@@ -35,7 +32,6 @@ interface JournalEntry {
 const JournalPage = () => {
   const [currentEntry, setCurrentEntry] = useState<JournalEntry>({
     id: "",
-    title: "",
     content: "",
     date: new Date(),
     wordCount: 0,
@@ -62,13 +58,6 @@ const JournalPage = () => {
     }));
   };
 
-  const handleTitleChange = (title: string) => {
-    setCurrentEntry((prev) => ({
-      ...prev,
-      title,
-    }));
-  };
-
   const filteredEntries = data
     ? data.filter(
         (entry) =>
@@ -84,7 +73,6 @@ const JournalPage = () => {
   const createNewEntry = () => {
     setCurrentEntry({
       id: "",
-      title: "",
       content: "",
       date: new Date(),
       wordCount: 0,
@@ -173,7 +161,16 @@ const JournalPage = () => {
                 <Clock className="h-4 w-4 mr-2" />
                 Salvo automaticamente
               </Button>
-              <Button size="sm" className="hover:cursor-pointer">
+              <Button
+                size="sm"
+                className="hover:cursor-pointer"
+                onClick={() => {
+                  console.log({
+                    ...currentEntry,
+                    title: generateSmartTitle(currentEntry.content),
+                  });
+                }}
+              >
                 <Save className="h-4 w-4 mr-2" />
                 Salvar
               </Button>
@@ -183,13 +180,6 @@ const JournalPage = () => {
 
         <div className="flex-1 p-6">
           <div className="max-w-4xl mx-auto h-full flex flex-col">
-            <Input
-              placeholder="Título da entrada..."
-              value={currentEntry.title}
-              onChange={(e) => handleTitleChange(e.target.value)}
-              className="text-2xl font-bold border-none px-0 mb-6 placeholder:text-muted-foreground/50"
-            />
-
             <Textarea
               placeholder="Como foi seu dia hoje? Escreva sobre seus pensamentos, sentimentos, experiências..."
               value={currentEntry.content}
