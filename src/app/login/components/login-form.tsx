@@ -49,7 +49,7 @@ const LoginForm = () => {
     onSuccess: ({ token }) => {
       toast.success("Login realizado com sucesso");
       setCookie("token", token);
-      router.push("/dashboard");
+      router.push("/journal");
     },
     onError: () => {
       toast.error("Erro ao fazer login");
@@ -118,7 +118,7 @@ const LoginForm = () => {
           </CardContent>
           <CardFooter>
             <Button
-              className="w-full font-medium group"
+              className="w-full font-medium group hover:cursor-pointer"
               type="submit"
               size="lg"
             >
