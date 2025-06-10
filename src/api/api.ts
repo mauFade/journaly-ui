@@ -6,6 +6,14 @@ class Api {
     return { token: "a" };
   }
 
+  public async signUp(data: {
+    email: string;
+    name: string;
+    password: string;
+  }): Promise<{ token: string }> {
+    return { token: "a" };
+  }
+
   public async getJournals(): Promise<
     {
       id: string;
