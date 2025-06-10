@@ -20,7 +20,7 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/api/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { JournalEntry } from "@/api/types/journal";
@@ -31,6 +31,7 @@ interface PropsInterface {
 
 const JournalPageDetail = (props: PropsInterface) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [isPreviewMode, setIsPreviewMode] = useState<boolean>(true);
 
@@ -56,6 +57,45 @@ const JournalPageDetail = (props: PropsInterface) => {
   useEffect(() => {
     if (entry) setCurrentEntry(entry);
   }, [entry]);
+
+  const updateMutation = useMutation({
+    mutationFn: (data: JournalEntry) => {
+      return api.updateJournal(data.id, { ...data });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["journal", "user-journals"] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => {
+      return api.deleteJournal(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["journal", "user-journals"] });
+    },
+  });
+
+  const onUpdateJournal = () => {
+    const wordCount = currentEntry.content
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
+
+    const updatedJournal = { ...currentEntry, wordCount };
+
+    updateMutation.mutate(updatedJournal);
+  };
+
+  const onDeleteJournal = () => {
+    if (
+      confirm(
+        "Tem certeza que deseja excluir esta entrada? Esta ação não pode ser desfeita."
+      )
+    ) {
+      deleteMutation.mutate(currentEntry.id);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -130,13 +170,32 @@ const JournalPageDetail = (props: PropsInterface) => {
                   {isPreviewMode ? "Editar" : "Visualizar"}
                 </Button>
 
-                <Button variant="ghost" size="sm">
-                  <Trash2 className="h-4 w-4 mr-2" /> Excluir
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onDeleteJournal}
+                  disabled={deleteMutation.isPending}
+                >
+                  {deleteMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  Excluir
                 </Button>
 
                 {!isPreviewMode && (
-                  <Button size="sm">
-                    <Save className="h-4 w-4 mr-2" /> Salvar
+                  <Button
+                    size="sm"
+                    onClick={onUpdateJournal}
+                    disabled={updateMutation.isPending}
+                  >
+                    {updateMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Salvar
                   </Button>
                 )}
               </div>
