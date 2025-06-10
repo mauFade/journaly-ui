@@ -69,10 +69,6 @@ const JournalPage = () => {
       )
     : [];
 
-  const selectEntry = (entry: JournalEntry) => {
-    setCurrentEntry(entry);
-  };
-
   const createNewEntry = () => {
     setCurrentEntry({
       id: "",
@@ -117,7 +113,7 @@ const JournalPage = () => {
             {filteredEntries.map((entry) => (
               <div
                 key={entry.id}
-                onClick={() => selectEntry(entry)}
+                onClick={() => router.push(`/journal/${entry.id}`)}
                 className={`p-3 rounded-lg cursor-pointer transition-colors hover:bg-muted/50 mb-2 ${
                   currentEntry.id === entry.id ? "bg-muted" : ""
                 }`}
@@ -137,15 +133,6 @@ const JournalPage = () => {
                   <Calendar className="h-3 w-3" />
                   {format(entry.date, "dd 'de' MMMM", { locale: ptBR })}
                 </div>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full mt-2 text-xs"
-                  onClick={() => router.push(`/journal/${entry.id}`)}
-                >
-                  Ver detalhes
-                </Button>
               </div>
             ))}
           </div>

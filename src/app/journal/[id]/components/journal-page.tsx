@@ -11,11 +11,11 @@ import {
   FileText,
   Clock,
   Trash2,
-  Share,
   BookOpen,
   Eye,
   EyeOff,
   Loader2,
+  Save,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -65,57 +65,6 @@ const JournalPageDetail = (props: PropsInterface) => {
     if (entry) setCurrentEntry(entry);
   }, [entry]);
 
-  // Mutation para atualizar o journal
-  // const updateMutation = useMutation({
-  //   mutationFn: api.updateJournal,
-  //   onSuccess: (updatedJournal) => {
-  //     // Atualizar o cache com os novos dados
-  //     queryClient.setQueryData(["journal", id], updatedJournal)
-  //     // Voltar para o modo de visualização
-  //     setIsPreviewMode(true)
-  //   },
-  // })
-
-  // Mutation para excluir o journal
-  // const deleteMutation = useMutation({
-  //   mutationFn: () => api.deleteJournal(id),
-  //   onSuccess: () => {
-  //     // Invalidar a query de lista para forçar uma atualização
-  //     queryClient.invalidateQueries({ queryKey: ["journals"] })
-  //     // Voltar para a lista
-  //     onBack()
-  //   },
-  // })
-
-  // const handleSave = () => {
-  //   if (!entry) return;
-
-  //   const wordCount = currentEntry.content
-  //     ? currentEntry.content
-  //         .trim()
-  //         .split(/\s+/)
-  //         .filter((word) => word.length > 0).length
-  //     : currentEntry.wordCount;
-
-  //   const updatedJournal: JournalEntry = {
-  //     ...entry,
-  //     wordCount,
-  //   };
-  // };
-
-  // const handleContentChange = (content: string) => {
-  //   setEditableEntry((prev) => ({
-  //     ...prev,
-  //     content,
-  //   }));
-  // };
-
-  // const handleDelete = () => {
-  //   if (confirm("Tem certeza que deseja excluir esta entrada? Esta ação não pode ser desfeita.")) {
-  //     deleteMutation.mutate()
-  //   }
-  // }
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -152,8 +101,6 @@ const JournalPageDetail = (props: PropsInterface) => {
       </div>
     );
   }
-
-  if (!entry) return null;
 
   const readingTime = Math.ceil(currentEntry.wordCount / 200);
 
@@ -192,38 +139,14 @@ const JournalPageDetail = (props: PropsInterface) => {
                 </Button>
 
                 <Button variant="ghost" size="sm">
-                  <Share className="h-4 w-4 mr-2" />
-                  Compartilhar
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  // onClick={handleDelete}
-                  // disabled={deleteMutation.isPending}
-                >
-                  {/* {deleteMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4 mr-2" />
-                  )} */}
                   <Trash2 className="h-4 w-4 mr-2" /> Excluir
                 </Button>
 
-                {/* {!isPreviewMode && (
-                  <Button
-                    size="sm"
-                    onClick={handleSave}
-                    // disabled={updateMutation.isPending}
-                  > */}
-                {/* {updateMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Save className="h-4 w-4 mr-2" />
-                    )} */}
-                {/* <Save className="h-4 w-4 mr-2" /> Salvar
-                  </Button> */}
-                {/*})} */}
+                {!isPreviewMode && (
+                  <Button size="sm">
+                    <Save className="h-4 w-4 mr-2" /> Salvar
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -284,14 +207,13 @@ const JournalPageDetail = (props: PropsInterface) => {
                   locale: ptBR,
                 })}
               </div>
-              {/* {currentEntry.lastEdited && (
-                <div>
-                  Última edição em{" "}
-                  {format(new Date(currentEntry.lastEdited), "dd/MM/yyyy 'às' HH:mm", {
-                    locale: ptBR,
-                  })}
-                </div>
-              )} */}
+
+              <div>
+                Última edição em{" "}
+                {format(new Date(currentEntry.date), "dd/MM/yyyy 'às' HH:mm", {
+                  locale: ptBR,
+                })}
+              </div>
             </div>
           </div>
         </div>
