@@ -21,6 +21,7 @@ import { ptBR } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/api";
 import { generateSmartTitle } from "@/lib/generate-journal-title";
+import { useRouter } from "next/navigation";
 
 interface JournalEntry {
   id: string;
@@ -30,6 +31,8 @@ interface JournalEntry {
 }
 
 const JournalPage = () => {
+  const router = useRouter();
+
   const [currentEntry, setCurrentEntry] = useState<JournalEntry>({
     id: "",
     content: "",
@@ -134,6 +137,15 @@ const JournalPage = () => {
                   <Calendar className="h-3 w-3" />
                   {format(entry.date, "dd 'de' MMMM", { locale: ptBR })}
                 </div>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full mt-2 text-xs"
+                  onClick={() => router.push(`/journal/${entry.id}`)}
+                >
+                  Ver detalhes
+                </Button>
               </div>
             ))}
           </div>

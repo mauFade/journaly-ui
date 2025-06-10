@@ -9,65 +9,67 @@ const publicRoutes = [
 ] as const;
 
 export function middleware(r: NextRequest) {
-  const path = r.nextUrl.pathname;
-  const publicRoute = publicRoutes.find((r) => r.path === path);
-  const token = r.cookies.get("token");
+  // const path = r.nextUrl.pathname;
+  // const publicRoute = publicRoutes.find((r) => r.path === path);
+  // const token = r.cookies.get("token");
 
-  const redirectUrl = r.nextUrl.clone();
+  // const redirectUrl = r.nextUrl.clone();
 
-  redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED;
+  // redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED;
 
-  // Rota é pública, não está autenticado
-  if (!token && publicRoute) {
-    return NextResponse.next();
-  }
+  // // Rota é pública, não está autenticado
+  // if (!token && publicRoute) {
+  //   return NextResponse.next();
+  // }
 
-  // Rota é privata e não está autenticado
-  if (!publicRoute && !token) {
-    return NextResponse.redirect(redirectUrl);
-  }
+  // // Rota é privata e não está autenticado
+  // if (!publicRoute && !token) {
+  //   return NextResponse.redirect(redirectUrl);
+  // }
 
-  // Rota é privata, está autenticado, verificar validade do token
-  if (!publicRoute && token) {
-    const decodedToken = jwtDecode(token.value);
+  // // Rota é privata, está autenticado, verificar validade do token
+  // if (!publicRoute && token) {
+  //   const decodedToken = jwtDecode(token.value);
 
-    const exp = decodedToken.exp;
+  //   const exp = decodedToken.exp;
 
-    if (!exp) {
-      return NextResponse.redirect(redirectUrl);
-    }
+  //   if (!exp) {
+  //     return NextResponse.redirect(redirectUrl);
+  //   }
 
-    const expiredDate = new Date(decodedToken.exp! * 1000);
+  //   const expiredDate = new Date(decodedToken.exp! * 1000);
 
-    // Token está expirado, redirecionar para tela de login
-    if (Date.now() > expiredDate.getTime()) {
-      return NextResponse.redirect(redirectUrl);
-    }
+  //   // Token está expirado, redirecionar para tela de login
+  //   if (Date.now() > expiredDate.getTime()) {
+  //     return NextResponse.redirect(redirectUrl);
+  //   }
 
-    // Rota privata, com autenticação e token ainda válido
-    return NextResponse.next();
-  }
+  // Rota privata, com autenticação e token ainda válido
+  //   return NextResponse.next();
+  // }
 
   // Rota é publica, está autenticado
-  if (token && publicRoute) {
-    const decodedToken = jwtDecode(token.value);
+  // if (token && publicRoute) {
+  //   const decodedToken = jwtDecode(token.value);
 
-    const exp = decodedToken.exp;
+  //   const exp = decodedToken.exp;
 
-    if (!exp) {
-      return NextResponse.redirect(redirectUrl);
-    }
+  //   if (!exp) {
+  //     return NextResponse.redirect(redirectUrl);
+  //   }
 
-    const expiredDate = new Date(decodedToken.exp! * 1000);
+  //   const expiredDate = new Date(decodedToken.exp! * 1000);
 
-    if (Date.now() > expiredDate.getTime()) {
-      return NextResponse.redirect(redirectUrl);
-    } else {
-      redirectUrl.pathname = "/journal";
+  //   if (Date.now() > expiredDate.getTime()) {
+  //     return NextResponse.redirect(redirectUrl);
+  //   } else {
+  //     redirectUrl.pathname = "/journal";
 
-      return NextResponse.redirect(redirectUrl);
-    }
-  }
+  //     return NextResponse.redirect(redirectUrl);
+  //   }
+  // }
+
+  return NextResponse.next();
 }
 
 export const config: MiddlewareConfig = {
