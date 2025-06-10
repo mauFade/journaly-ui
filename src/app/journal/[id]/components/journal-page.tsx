@@ -23,19 +23,10 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { JournalEntry } from "@/api/types/journal";
 
 interface PropsInterface {
   id: string;
-}
-
-interface JournalEntry {
-  id: string;
-  title: string;
-  content: string;
-  date: Date;
-  wordCount: number;
-  mood?: string;
-  tags?: string[];
 }
 
 const JournalPageDetail = (props: PropsInterface) => {
@@ -47,7 +38,8 @@ const JournalPageDetail = (props: PropsInterface) => {
     id: "",
     title: "",
     content: "",
-    date: new Date(),
+    created_at: new Date(),
+    updated_at: new Date(),
     wordCount: 0,
   });
 
@@ -158,7 +150,7 @@ const JournalPageDetail = (props: PropsInterface) => {
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
                 {format(
-                  new Date(currentEntry.date),
+                  new Date(currentEntry.created_at),
                   "EEEE, dd 'de' MMMM 'de' yyyy",
                   {
                     locale: ptBR,
@@ -203,16 +195,24 @@ const JournalPageDetail = (props: PropsInterface) => {
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <div>
                 Criado em{" "}
-                {format(new Date(currentEntry.date), "dd/MM/yyyy 'às' HH:mm", {
-                  locale: ptBR,
-                })}
+                {format(
+                  new Date(currentEntry.created_at),
+                  "dd/MM/yyyy 'às' HH:mm",
+                  {
+                    locale: ptBR,
+                  }
+                )}
               </div>
 
               <div>
                 Última edição em{" "}
-                {format(new Date(currentEntry.date), "dd/MM/yyyy 'às' HH:mm", {
-                  locale: ptBR,
-                })}
+                {format(
+                  new Date(currentEntry.updated_at),
+                  "dd/MM/yyyy 'às' HH:mm",
+                  {
+                    locale: ptBR,
+                  }
+                )}
               </div>
             </div>
           </div>

@@ -22,21 +22,17 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/api";
 import { generateSmartTitle } from "@/lib/generate-journal-title";
 import { useRouter } from "next/navigation";
-
-interface JournalEntry {
-  id: string;
-  content: string;
-  date: Date;
-  wordCount: number;
-}
+import { JournalEntry } from "@/api/types/journal";
 
 const JournalPage = () => {
   const router = useRouter();
 
   const [currentEntry, setCurrentEntry] = useState<JournalEntry>({
     id: "",
+    title: "",
     content: "",
-    date: new Date(),
+    created_at: new Date(),
+    updated_at: new Date(),
     wordCount: 0,
   });
 
@@ -73,7 +69,9 @@ const JournalPage = () => {
     setCurrentEntry({
       id: "",
       content: "",
-      date: new Date(),
+      created_at: new Date(),
+      title: "",
+      updated_at: new Date(),
       wordCount: 0,
     });
   };
@@ -131,7 +129,7 @@ const JournalPage = () => {
                 </p>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3" />
-                  {format(entry.date, "dd 'de' MMMM", { locale: ptBR })}
+                  {format(entry.created_at, "dd 'de' MMMM", { locale: ptBR })}
                 </div>
               </div>
             ))}
@@ -145,9 +143,13 @@ const JournalPage = () => {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                {format(currentEntry.date, "EEEE, dd 'de' MMMM 'de' yyyy", {
-                  locale: ptBR,
-                })}
+                {format(
+                  currentEntry.created_at,
+                  "EEEE, dd 'de' MMMM 'de' yyyy",
+                  {
+                    locale: ptBR,
+                  }
+                )}
               </div>
               <Separator orientation="vertical" className="h-4" />
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
