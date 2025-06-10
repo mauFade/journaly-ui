@@ -73,6 +73,17 @@ class Api {
       },
     ].find((i) => i.id === id);
   }
+
+  public async updateJournal(
+    id: string,
+    data: Partial<Omit<JournalEntry, "id" | "created_at" | "updated_at">>
+  ): Promise<void> {
+    console.log(id, data);
+  }
+
+  public async deleteJournal(id: string): Promise<void> {
+    console.log(id);
+  }
 }
 
 export const api = new Api();

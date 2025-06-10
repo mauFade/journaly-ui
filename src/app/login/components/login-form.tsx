@@ -18,13 +18,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { setCookie } from "cookies-next";
 import { AtSign, KeyRound } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/api/api";
+import { useAuth } from "@/context/auth-context";
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -35,6 +35,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
   const router = useRouter();
+  const { login } = useAuth();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -46,9 +47,9 @@ const LoginForm = () => {
 
   const { mutate } = useMutation({
     mutationFn: (data: LoginFormData) => api.login(data),
-    onSuccess: ({ token }) => {
+    onSuccess: ({ token, email, name }) => {
       toast.success("Login realizado com sucesso");
-      setCookie("token", token);
+      login({ email, name, token });
       router.push("/journal");
     },
     onError: () => {

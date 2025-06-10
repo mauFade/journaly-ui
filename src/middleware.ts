@@ -11,7 +11,7 @@ const publicRoutes = [
 export function middleware(r: NextRequest) {
   // const path = r.nextUrl.pathname;
   // const publicRoute = publicRoutes.find((r) => r.path === path);
-  // const token = r.cookies.get("token");
+  // const token = r.cookies.get("userToken");
 
   // const redirectUrl = r.nextUrl.clone();
 
