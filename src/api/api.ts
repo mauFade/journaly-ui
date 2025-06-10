@@ -1,13 +1,13 @@
 import { JournalEntry } from "./types/journal";
-import { AuthenticateData, CreateUserData } from "./types/user";
+import { AuthenticateData, CreateUserData, UserResponse } from "./types/user";
 
 class Api {
-  public async login(data: AuthenticateData): Promise<{ token: string }> {
-    return { token: "a" };
+  public async login(data: AuthenticateData): Promise<UserResponse> {
+    return { token: "a", email: "b", name: "c" };
   }
 
-  public async signUp(data: CreateUserData): Promise<{ token: string }> {
-    return { token: "a" };
+  public async signUp(data: CreateUserData): Promise<UserResponse> {
+    return { token: "a", email: "b", name: "c" };
   }
 
   public async getJournals(): Promise<JournalEntry[]> {

@@ -1,3 +1,9 @@
+export type UserResponse = {
+  name: string;
+  email: string;
+  token: string;
+};
+
 export type AuthenticateData = {
   email: string;
   password: string;
