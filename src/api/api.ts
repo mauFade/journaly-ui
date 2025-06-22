@@ -1,7 +1,29 @@
-import { JournalEntry } from "./types/journal";
+import axios, { AxiosInstance } from "axios";
+import { getCookie } from "cookies-next";
+
+import { JournalEntry, JournalRequest } from "./types/journal";
 import { AuthenticateData, CreateUserData, UserResponse } from "./types/user";
 
 class Api {
+  private axios: AxiosInstance;
+
+  constructor() {
+    this.axios = axios.create({
+      baseURL: "http://localhost:8080",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+
+    this.axios.interceptors.request.use((config) => {
+      const apiKey = getCookie("jwtToken");
+      if (apiKey) {
+        config.headers["X-API-KEY"] = apiKey;
+      }
+      return config;
+    });
+  }
+
   public async login(data: AuthenticateData): Promise<UserResponse> {
     return { token: "a", email: "b", name: "c" };
   }
@@ -10,36 +32,15 @@ class Api {
     return { token: "a", email: "b", name: "c" };
   }
 
+  public async createJournal(data: JournalRequest): Promise<JournalEntry> {
+    const res = await this.axios.post<JournalEntry>("/journals", data);
+
+    return res.data;
+  }
+
   public async getJournals(): Promise<JournalEntry[]> {
-    return [
-      {
-        id: "1",
-        title: "Um dia bom",
-        content:
-          "Hoje foi um dia muito produtivo. Consegui terminar o projeto que estava desenvolvendo há semanas...",
-        created_at: new Date(2024, 11, 8),
-        updated_at: new Date(2024, 11, 9),
-        wordCount: 245,
-      },
-      {
-        id: "2",
-        title: "Reflexões sobre mudanças",
-        content:
-          "Tenho pensado muito sobre as mudanças que quero fazer na minha vida. É interessante como...",
-        created_at: new Date(2024, 11, 7),
-        updated_at: new Date(2024, 11, 9),
-        wordCount: 189,
-      },
-      {
-        id: "3",
-        title: "Fim de semana relaxante",
-        content:
-          "O fim de semana foi exatamente o que eu precisava. Passei tempo com a família...",
-        created_at: new Date(2024, 11, 6),
-        updated_at: new Date(2024, 11, 9),
-        wordCount: 156,
-      },
-    ];
+    const js = await this.axios.get<JournalEntry[]>("/journals");
+    return js.data;
   }
 
   public async getJournalById(id: string): Promise<JournalEntry | undefined> {
