@@ -18,11 +18,12 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "@/api/api";
 import { generateSmartTitle } from "@/lib/generate-journal-title";
 import { useRouter } from "next/navigation";
-import { JournalEntry } from "@/api/types/journal";
+import { JournalEntry, JournalRequest } from "@/api/types/journal";
+import { toast } from "sonner";
 
 const JournalPage = () => {
   const router = useRouter();
@@ -66,15 +67,25 @@ const JournalPage = () => {
       )
     : [];
 
+  const { mutate } = useMutation({
+    mutationFn: (data: JournalRequest) => {
+      return api.createJournal(data);
+    },
+    onSuccess: (v) => {
+      toast.success("Journal criado com sucesso!");
+      router.push(`/journal/${v.id}`);
+    },
+    onError: () => {
+      toast.error("Erro ao criar journal");
+    },
+  });
+
   const createNewEntry = () => {
-    setCurrentEntry({
-      id: "",
-      content: "",
-      created_at: new Date(),
-      title: "",
-      updated_at: new Date(),
-      word_count: 0,
+    mutate({
+      content: currentEntry.content,
       tags: [],
+      title: generateSmartTitle(currentEntry.content),
+      word_count: currentEntry.word_count,
     });
   };
 
@@ -167,12 +178,7 @@ const JournalPage = () => {
               <Button
                 size="sm"
                 className="hover:cursor-pointer"
-                onClick={() => {
-                  console.log({
-                    ...currentEntry,
-                    title: generateSmartTitle(currentEntry.content),
-                  });
-                }}
+                onClick={createNewEntry}
               >
                 <Save className="h-4 w-4 mr-2" />
                 Salvar
